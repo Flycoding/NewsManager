@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
 	@SuppressWarnings("unused")
 	private boolean saveByPost(String title, Integer viewCount) throws MalformedURLException, IOException {
 		HttpURLConnection conn = (HttpURLConnection) new URL("http://10.1.79.29:8080/News/ManageNewsServlet").openConnection();
-		conn.setReadTimeout(5000);
+		conn.setConnectTimeout(5000);
 		conn.setRequestMethod("POST");
 		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		String str = "title=" + title + "&viewCount=" + viewCount;
