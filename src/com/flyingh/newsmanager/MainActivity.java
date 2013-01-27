@@ -7,6 +7,16 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
 import android.content.res.Resources.NotFoundException;
@@ -36,13 +46,24 @@ public class MainActivity extends Activity {
 	public void save(View view) throws MalformedURLException, NotFoundException, IOException {
 		String title = titleText.getText().toString();
 		Integer viewCount = Integer.valueOf(viewCountText.getText().toString());
-		if (saveByPost(title, viewCount)) {
+		if (saveByHttpClientPost(title, viewCount)) {
 			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 		} else {
 			Toast.makeText(getApplicationContext(), R.string.failture, Toast.LENGTH_SHORT).show();
 		}
 	}
 
+	private boolean saveByHttpClientPost(String title, Integer viewCount) throws ClientProtocolException, IOException {
+		HttpPost request = new HttpPost("http://10.1.79.29:8080/News/ManageNewsServlet");
+		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		parameters.add(new BasicNameValuePair("title", title));
+		parameters.add(new BasicNameValuePair("viewCount", String.valueOf(viewCount)));
+		request.setEntity(new UrlEncodedFormEntity(parameters, "UTF-8"));
+		HttpResponse response = new DefaultHttpClient().execute(request);
+		return response.getStatusLine().getStatusCode() == 200;
+	}
+
+	@SuppressWarnings("unused")
 	private boolean saveByPost(String title, Integer viewCount) throws MalformedURLException, IOException {
 		HttpURLConnection conn = (HttpURLConnection) new URL("http://10.1.79.29:8080/News/ManageNewsServlet").openConnection();
 		conn.setReadTimeout(5000);
