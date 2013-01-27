@@ -1,6 +1,7 @@
 package com.flyingh.newsmanager;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -35,14 +36,28 @@ public class MainActivity extends Activity {
 	public void save(View view) throws MalformedURLException, NotFoundException, IOException {
 		String title = titleText.getText().toString();
 		Integer viewCount = Integer.valueOf(viewCountText.getText().toString());
-		if (save(title, viewCount)) {
+		if (saveByPost(title, viewCount)) {
 			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 		} else {
 			Toast.makeText(getApplicationContext(), R.string.failture, Toast.LENGTH_SHORT).show();
 		}
 	}
 
-	private boolean save(String title, Integer viewCount) throws MalformedURLException, IOException {
+	private boolean saveByPost(String title, Integer viewCount) throws MalformedURLException, IOException {
+		HttpURLConnection conn = (HttpURLConnection) new URL("http://10.1.79.29:8080/News/ManageNewsServlet").openConnection();
+		conn.setReadTimeout(5000);
+		conn.setRequestMethod("POST");
+		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		String str = "title=" + title + "&viewCount=" + viewCount;
+		conn.setRequestProperty("Content-Length", String.valueOf(str.getBytes().length));
+		conn.setDoOutput(true);
+		OutputStream os = conn.getOutputStream();
+		os.write(str.getBytes());
+		return conn.getResponseCode() == 200;
+	}
+
+	@SuppressWarnings("unused")
+	private boolean saveByGet(String title, Integer viewCount) throws MalformedURLException, IOException {
 		HttpURLConnection conn = (HttpURLConnection) new URL(makePath(title, viewCount)).openConnection();
 		conn.setConnectTimeout(5000);
 		conn.setRequestMethod("GET");
